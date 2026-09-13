@@ -1,7 +1,13 @@
 pipeline {
     agent any
     
+    options {
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+    
     environment {
+        NODE_ENV = 'production'
         VERCEL_TOKEN = credentials('vercel-token')
         VERCEL_ORG_ID = credentials('vercel-org-id')
         VERCEL_PROJECT_ID = credentials('vercel-project-id')
@@ -10,34 +16,37 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo 'Checking out code from GitHub...'
+                echo '📥 Checking out code...'
                 checkout scm
             }
         }
         
         stage('Install Dependencies') {
             steps {
-                echo 'Installing npm dependencies...'
-                sh 'npm install'
+                echo '📦 Installing dependencies...'
+                sh 'npm ci'
             }
         }
         
         stage('Build') {
             steps {
-                echo 'Building React application...'
+                echo '🏗️ Building React application...'
                 sh 'npm run build'
             }
         }
         
         stage('Deploy to Vercel') {
+            when {
+                branch 'main'
+            }
             steps {
-                echo 'Deploying to Vercel...'
+                echo '🚀 Deploying to Vercel...'
                 sh '''
-                    npm install -g vercel
-                    vercel --prod \
+                    npx vercel --prod \
                       --token=${VERCEL_TOKEN} \
                       --org-id=${VERCEL_ORG_ID} \
-                      --project-id=${VERCEL_PROJECT_ID}
+                      --project-id=${VERCEL_PROJECT_ID} \
+                      --yes
                 '''
             }
         }
@@ -45,7 +54,7 @@ pipeline {
     
     post {
         always {
-            echo 'Pipeline execution finished!'
+            cleanWs()
         }
         success {
             echo '✅ Deployment successful!'
