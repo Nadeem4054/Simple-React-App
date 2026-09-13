@@ -8,7 +8,6 @@ pipeline {
     
     environment {
         NODE_ENV = 'production'
-        npm_config_allow_scripts = 'true'
         VERCEL_TOKEN = credentials('vercel-token')
         VERCEL_ORG_ID = credentials('vercel-org-id')
         VERCEL_PROJECT_ID = credentials('vercel-project-id')
@@ -25,17 +24,14 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 echo '📦 Installing dependencies...'
-                sh 'npm ci'
+                sh 'npm ci --ignore-scripts'
             }
         }
         
         stage('Build') {
             steps {
                 echo '🏗️ Building React application...'
-                sh '''
-                    npm approve-scripts --all || true
-                    npm run build
-                '''
+                sh 'npm run build'
             }
         }
         
