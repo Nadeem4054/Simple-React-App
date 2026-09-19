@@ -1,57 +1,33 @@
 pipeline {
-    agent any
-    
-    environment {
-        VERCEL_TOKEN = credentials('vercel-token')
-        VERCEL_ORG_ID = credentials('vercel-org-id')
-        VERCEL_PROJECT_ID = credentials('vercel-project-id')
+  agent any
+  
+  environment {
+    VERCEL_TOKEN = credentials('vercel_token')
+  }
+  
+  stages {
+    stage('install') {
+      steps {
+        sh 'npm install'
+      }
     }
     
-    stages {
-        stage('Checkout') {
-            steps {
-                echo 'Checking out code from GitHub...'
-                checkout scm
-            }
-        }
-        
-        stage('Install Dependencies') {
-            steps {
-                echo 'Installing npm dependencies...'
-                sh 'npm install'
-            }
-        }
-        
-        stage('Build') {
-            steps {
-                echo 'Building React application...'
-                sh 'npm run build'
-            }
-        }
-        
-        stage('Deploy to Vercel') {
-            steps {
-                echo 'Deploying to Vercel...'
-                sh '''
-                    npm install -g vercel
-                    vercel --prod \
-                      --token=${VERCEL_TOKEN} \
-                      --org-id=${VERCEL_ORG_ID} \
-                      --project-id=${VERCEL_PROJECT_ID}
-                '''
-            }
-        }
+    stage('test') {
+      steps {
+        echo 'The test is complete'
+      }
     }
     
-    post {
-        always {
-            echo 'Pipeline execution finished!'
-        }
-        success {
-            echo '✅ Deployment successful!'
-        }
-        failure {
-            echo '❌ Deployment failed!'
-        }
+    stage('build') {
+      steps {
+        sh 'npm run build'
+      }
     }
+    
+    stage('deploy') {
+      steps {
+        sh 'npx vercel --prod --yes --token=$VERCEL_TOKEN'
+      }
+    }
+  }
 }
