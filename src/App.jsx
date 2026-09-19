@@ -26,8 +26,8 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>🚀 My React App</h1>
-        <p>Simple app with counter and task list</p>
+        <h1>🚀 My React App from nadeem</h1>
+        <p>Simple app with counter and task list and i want to make changes</p>
       </header>
 
       <main className="container">
